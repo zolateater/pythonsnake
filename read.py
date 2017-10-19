@@ -31,14 +31,18 @@ printCells(getCells())
 
 
 
-for i in range(10):
-    a = getch()
-    print(len(a), a)
-    # os.system('clear')
-    # print("i: {}, symbol: {}, symbol code: {}".format(i, a, ord(a)))
-    #print(a)
+#for i in range(10):
+#    a = getch()
+#    print(len(a), a)
+# os.system('clear')
+# print("i: {}, symbol: {}, symbol code: {}".format(i, a, ord(a)))
+# print(a)
 
-
-termios.tcsetattr(file_descriptor, termios.TCSANOW, old_terminal_settings)
-
-os.system('clear')
+try:
+	termios.tcsetattr(file_descriptor, termios.TCSANOW, old_terminal_settings)
+	a = getch()
+	print(len(a), a)
+except KeyboardInterrupt:
+	print("Ctrl-C pressed")
+finally:
+	termios.tcsetattr(file_descriptor, termios.TCSANOW, old_terminal_settings)
