@@ -1,62 +1,73 @@
-#!/usr/bin/env python3
-import sys
-import termios
-import os
-import time
-import selectors
+import curses
+from typing import List, Iterator
 from itertools import repeat
-from typing import List, Tuple
+
+GETCH_TIMEOUT = 0
+
+window = curses.initscr()
+
+# Usually curses applications turn off automatic echoing of keys to the screen,
+# in order to be able to read keys and only display them under certain circumstances.
+# This requires calling the noecho() function.
+curses.noecho()
+
+# Applications will also commonly need to react to keys instantly,
+# without requiring the Enter key to be pressed;
+# this is called cbreak mode, as opposed to the usual buffered input mode.
+curses.cbreak()
+
+# Terminals usually return special keys, such as the cursor keys or navigation keys such as Page Up and Home,
+# as a multibyte escape sequence.
+# While you could write your application to expect such sequences and process them accordingly,
+# curses can do it for you, returning a special value such as curses.KEY_LEFT.
+# To get curses to do the job, you’ll have to enable keypad mode.
+window.keypad(True)
 
 
-def getTerminalSize() -> Tuple[int, int]:
-    width, height = os.popen('stty size').read().split()
-    return (int(width), int(height))
-
-
-def getCells() -> List[List[str]]:
-    rows_count = 10
-    columns_count = 20
-    row = list(repeat('#', columns_count))
-    cells = list(repeat(row, rows_count))
-    return cells
-
-
-def printCells(cells: List[List[str]]) -> None:
-    for row in cells:
-        for cell in row:
-            sys.stdout.write(cell)
-        sys.stdout.write('\n')
-
-
-def getch() -> str:
-    return sys.stdin.read(3)
-
-def clearScreen() -> None:
-    os.system('clear')
-
-printCells(getCells())
-
-file_descriptor = sys.stdin.fileno()
-old_terminal_settings = termios.tcgetattr(file_descriptor)
-new_terminal_settings = termios.tcgetattr(file_descriptor)
-new_terminal_settings[3] = new_terminal_settings[3] & ~termios.ICANON & ~termios.ECHO  # lflags
-
-selector = selectors.DefaultSelector()
-selector.register(sys.stdin.fileno(), selectors.EVENT_READ)
+def getEmptyCellArray(width, height) -> List[List[str]]:
+    """
+    Returns empty cell array for output
+    :param width:
+    :param height:
+    :return:
+    """
+    table = []
+    for i in range(0, height):
+        table.append(['.'] * width)
+    return table
 
 
 try:
-    termios.tcsetattr(file_descriptor, termios.TCSANOW, new_terminal_settings)
+    playerPosition = [0, 0]
+    width, height = 15, 15
+
     while True:
-        # TODO: detect three key presses in a row
-        events = selector.select(1)
-        print(events)
-        for selectorKey, event in events:
-            print(selectorKey)
-            data = sys.stdin.read(1)
-            print(len(data))
-        time.sleep(1)
-except KeyboardInterrupt:
-    print("Ctrl-C pressed")
+
+        cells = getEmptyCellArray(width, height)
+        cells[playerPosition[0]][playerPosition[1]] = 'P'
+        for line in cells:
+            window.addstr("".join(line))
+            window.addstr('\n')
+
+        # height, width = window.getmaxyx()
+        ch = window.getch()
+        window.erase()
+
+        if ch == ord('q'):
+            break
+        if ch == curses.KEY_UP:
+            playerPosition[0] = playerPosition[0] - 1 if playerPosition[0] > 0 else playerPosition[0]
+        if ch == curses.KEY_LEFT:
+            playerPosition[1] = playerPosition[1] - 1 if playerPosition[1] > 0 else playerPosition[1]
+        if ch == curses.KEY_RIGHT:
+            playerPosition[1] = playerPosition[1] + 1 if playerPosition[1] < width - 1 else playerPosition[1]
+        if ch == curses.KEY_DOWN:
+            playerPosition[0] = playerPosition[0] + 1 if playerPosition[0] < height - 1 else playerPosition[0]
+
 finally:
-    termios.tcsetattr(file_descriptor, termios.TCSANOW, old_terminal_settings)
+    # Undo our changes to the terminal
+    curses.nocbreak()
+    window.keypad(False)
+    curses.echo()
+    curses.endwin()
+
