@@ -15,6 +15,18 @@ class Grid():
     def height(self) -> int:
         return len(self.cells)
 
+    def getCell(pos: Position) -> str:
+        return self.cells[pos.x][pos.y]
+
+    def setCell(pos: Position, value: str) -> None:
+        # TODO: add value check if member of cell type
+        self.cells[pos.x][pos.y] = value
+
+    def swap(self, pos1: Position, pos2: Position) -> None:
+        tmp = self.getCell(pos1)
+        self.setCell(pos1, self.getCell(pos2))
+        self.setCell(pos1, tmp)
+
     def _failIfSizeInvalid(self, cells: List[List[str]]) -> None:
         """
         Checks if all rows have the same length and row count is more than 0.
