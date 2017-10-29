@@ -1,5 +1,6 @@
 from typing import List
 from .enums import CellType
+from .position import Position
 
 class Grid():
     def __init__(self, cells: List[List[str]]):
@@ -15,17 +16,17 @@ class Grid():
     def height(self) -> int:
         return len(self.cells)
 
-    def getCell(pos: Position) -> str:
-        return self.cells[pos.x][pos.y]
+    def getCell(self, pos: Position) -> str:
+        return self.cells[pos.y][pos.x]
 
-    def setCell(pos: Position, value: str) -> None:
+    def setCell(self, pos: Position, value: str) -> None:
         # TODO: add value check if member of cell type
-        self.cells[pos.x][pos.y] = value
+        self.cells[pos.y][pos.x] = value
 
     def swap(self, pos1: Position, pos2: Position) -> None:
         tmp = self.getCell(pos1)
         self.setCell(pos1, self.getCell(pos2))
-        self.setCell(pos1, tmp)
+        self.setCell(pos2, tmp)
 
     def _failIfSizeInvalid(self, cells: List[List[str]]) -> None:
         """
@@ -52,8 +53,5 @@ class Grid():
         """
         for i, row in enumerate(cells):
             for j, cell in enumerate(row):
-                print(ord(cell))
-
                 if not CellType.cellTypeExists(cell):
-                    print(list(CellType.__members__))
                     raise ValueError('Cell({i}, {j}) has wrong value: "{cell}"'.format(i=i, j=j, cell=cell))

@@ -4,7 +4,7 @@ from logging import FileHandler, Formatter, getLogger, DEBUG
 from time import time
 # TODO: fix __init__ of game package
 from src.game.grid import Grid
-from src.game.game import Game, Direction
+from src.game.game import Game, Direction, Position, Snake
 
 
 # Logging facilities
@@ -40,32 +40,28 @@ curses.cbreak()
 window.keypad(True)
 window.nodelay(1)
 
-playerPosition = [0, 0]
+playerPosition = Position(0, 0)
+grid = Grid([
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+])
+
+snake = Snake([Position(0, 0), Position(0, 1), Position(0, 2), Position(0, 3)], grid.width, grid.height)
+game = Game(window, grid, 0.2, snake, Direction.DOWN)
+
 
 try:
-    grid = Grid([
-        ['#', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' ', ' '],
-    ])
-    game = Game(window, grid, 1, playerPosition, Direction.DOWN)
-    # TODO: add separated controller and
     lastTickTime = time()
     while True:
-
-
         # TODO: add checks for rendering
-        # height, width = window.getmaxyx()
         ch = window.getch()
 
         if ch == ord('q'):
@@ -79,11 +75,12 @@ try:
         if ch == curses.KEY_DOWN:
             game.direction = Direction.DOWN
 
+
         currentTickTime = time()
         if currentTickTime - lastTickTime >= game.tick:
             lastTickTime = currentTickTime
-            game.movePlayer()
-            game.renderFrame()
+            game.move_snake()
+            game.render_frame()
 except Exception as e:
     logger.fatal(str(e))
     raise e
