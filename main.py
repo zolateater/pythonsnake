@@ -79,7 +79,7 @@ try:
         currentTickTime = time()
         if currentTickTime - lastTickTime >= game.tick:
             lastTickTime = currentTickTime
-            game.move_snake()
+            game.make_game_turn()
             game.render_frame()
 except Exception as e:
     logger.fatal(str(e))
