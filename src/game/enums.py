@@ -19,3 +19,15 @@ class Direction(Enum):
     LEFT = 1
     RIGHT = 2
     DOWN = 3
+
+    def isOpposite(self, direction: 'Direction') -> bool:
+        oppositePairs = [
+            [self.UP.value, self.DOWN.value],
+            [self.LEFT.value, self.RIGHT.value],
+        ]
+
+        currentPair = [self.value, direction.value]
+        currentPair.sort()
+
+        return currentPair in oppositePairs
+

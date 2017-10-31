@@ -1,6 +1,7 @@
-from unittest import TestCase, main
+from unittest import TestCase
 from src.game.position import Position
 from src.game.position import Direction
+
 
 class TestPosition(TestCase):
 
