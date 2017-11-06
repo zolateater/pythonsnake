@@ -1,10 +1,17 @@
 from src.game.enums import Direction
 
 class Position():
+
     def __init__(self, x: int, y: int):
         self._x = x
         self._y = y
-    
+
+    def __repr__(self) -> str:
+        return "({}, {})".format(self.x, self.y)
+
+    def __hash__(self, *args, **kwargs):
+        return self.__repr__().__hash__()
+
     @property 
     def x(self) -> int:
         return self._x

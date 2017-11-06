@@ -26,3 +26,10 @@ class TestPosition(TestCase):
         assert (posDown.x, posDown.y) == (0, 1)
         assert (posLeft.x, posLeft.y) == (-1, 0)
         assert (posRight.x, posRight.y) == (1, 0)
+
+    def test_unique(self):
+        unique = {Position(0, 0), Position(0, 0)}
+        assert len(unique) == 1
+
+        unique = {Position(0, 0), Position(0, 1)}
+        assert len(unique) == 2
