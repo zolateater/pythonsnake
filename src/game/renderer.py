@@ -69,7 +69,6 @@ class Renderer():
         if not line_trimmed:
             return
 
-
         arguments = [pos.y, pos.x, line_trimmed]
         if color_pair_number is not None:
             arguments.append(curses.color_pair(color_pair_number))
