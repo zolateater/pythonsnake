@@ -24,8 +24,8 @@ class Snake():
 
         # We need to give our snake ability to move through levels without walls
         new_head_position = new_head_position\
-            .withX(new_head_position.x % self.worldWidth)\
-            .withY(new_head_position.y % self.worldHeight)
+            .with_x(new_head_position.x % self.worldWidth)\
+            .with_y(new_head_position.y % self.worldHeight)
         self.positions.insert(0, new_head_position)
 
     def _fail_if_positions_has_gaps(self, positions: List[Position]):
