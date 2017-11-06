@@ -1,13 +1,14 @@
-from unittest import TestCase, main
+from unittest import TestCase
 from src.game.position import Position
 from src.game.position import Direction
+
 
 class TestPosition(TestCase):
 
     def test_returns_new_instance_on_modify(self):
         pos1 = Position(0, 0)
-        pos2 = pos1.withX(9)
-        pos3 = pos2.withY(2)
+        pos2 = pos1.with_x(9)
+        pos3 = pos2.with_y(2)
 
         assert (pos1.x, pos1.y) == (0, 0)
         assert (pos2.x, pos2.y) == (9, 0)

@@ -9,6 +9,8 @@ from src.game.game import Game, Direction, Position, Snake
 
 # Logging facilities
 # TODO: move to some application class
+from src.game.renderer import Renderer
+
 logger = getLogger('default')
 logger.setLevel(DEBUG)
 
@@ -20,6 +22,7 @@ logHandler.setFormatter(formatter)
 logger.addHandler(logHandler)
 
 # Creating app window
+# TODO: Move curses config to separate place
 window = curses.initscr()
 
 # Usually curses applications turn off automatic echoing of keys to the screen,
@@ -32,6 +35,13 @@ curses.noecho()
 # this is called cbreak mode, as opposed to the usual buffered input mode.
 curses.cbreak()
 
+# To use color, you must call the start_color() function soon after calling initscr(),
+# to initialize the default color set
+# Once that’s done, the has_colors() function
+# returns TRUE if the terminal in use can actually display color.
+curses.start_color()
+curses.use_default_colors()
+
 # Terminals usually return special keys, such as the cursor keys or navigation keys such as Page Up and Home,
 # as a multibyte escape sequence.
 # While you could write your application to expect such sequences and process them accordingly,
@@ -40,22 +50,27 @@ curses.cbreak()
 window.keypad(True)
 window.nodelay(1)
 
+# If your application doesn’t need a blinking cursor at all, you can call curs_set(False) to make it invisible.
+curses.curs_set(False)
+
+
+renderer = Renderer(window)
 playerPosition = Position(0, 0)
 grid = Grid([
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
-    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',],
+    ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
+    ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
+    ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
+    ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
+    ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
+    ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
+    ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
+    ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
+    ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
+    ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
 ])
 
 snake = Snake([Position(0, 0), Position(0, 1), Position(0, 2), Position(0, 3)], grid.width, grid.height)
-game = Game(window, grid, 0.2, snake, Direction.DOWN)
+game = Game(renderer, grid, 0.2, snake, Direction.DOWN)
 
 
 try:
@@ -79,7 +94,7 @@ try:
         currentTickTime = time()
         if currentTickTime - lastTickTime >= game.tick:
             lastTickTime = currentTickTime
-            game.move_snake()
+            game.make_game_turn()
             game.render_frame()
 except Exception as e:
     logger.fatal(str(e))
