@@ -2,10 +2,8 @@ from enum import Enum, unique
 
 @unique
 class CellType(Enum):
-    SNAKE = '#'
-    WALL = '$'
+    WALL = '#'
     NONE = ' '
-    FOOD = '!'
 
     @classmethod
     def cellTypeExists(cls, cell: str) -> bool:

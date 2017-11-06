@@ -9,7 +9,7 @@ class Position():
     def x(self) -> int:
         return self._x
 
-    def withX(self, x: int) -> 'Position':
+    def with_x(self, x: int) -> 'Position':
         return Position(x, self._y)
     
     @property
@@ -19,13 +19,16 @@ class Position():
     def distance(self, position: 'Position') -> int:
         return abs(self._x - position._x) + abs(self._y - position._y)
 
-    def withY(self, y: int) -> 'Position':
+    def with_y(self, y: int) -> 'Position':
         """
-        Creates new direction
+        Creates new position
         :param y:
         :return:
         """
         return Position(self._x, y)
+
+    def __eq__(self, other: 'Position') -> bool:
+        return self._x == other._x and self._y == other._y
 
     def increment_in_direction(self, direction: Direction) -> 'Position':
         """
@@ -34,12 +37,12 @@ class Position():
         :return:
         """
         if direction.value == Direction.UP.value:
-            return self.withY(self._y - 1)
+            return self.with_y(self._y - 1)
         if direction.value == Direction.DOWN.value:
-            return self.withY(self._y + 1)
+            return self.with_y(self._y + 1)
         if direction.value == Direction.LEFT.value:
-            return self.withX(self._x - 1)
+            return self.with_x(self._x - 1)
         if direction.value == Direction.RIGHT.value:
-            return self.withX(self._x + 1)
+            return self.with_x(self._x + 1)
 
         raise ValueError('Unexpected direction')
