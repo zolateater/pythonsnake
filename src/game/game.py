@@ -48,14 +48,14 @@ class Game():
         return Position(randint(0, self.grid.width - 1), randint(0, self.grid.height - 1))
 
     def make_game_turn(self) -> None:
-        self.snake.move_in_direction(self.direction)
+        self.snake.prepend_head_at_direction(self.direction)
         self._last_used_direction = self.direction
         cell_value = self.grid.getCell(self.snake.head_position)
 
         if self.snake.head_position == self.food_position:
-            self.snake.prepend_head_in_direction(self._direction)
-            self.grid.setCell(self.snake.head_position, CellType.NONE.value)
             self.food_position = self.get_random_free_position()
         elif cell_value == CellType.WALL.value or self.snake.has_self_interceptions():
             self._is_game_over = True
             self.crash_position = self.snake.head_position
+        else:
+            self.snake.pop_tail()
