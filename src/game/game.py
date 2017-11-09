@@ -1,7 +1,6 @@
 from src.game.renderer import Renderer
 from .enums import Direction, CellType
 from .grid import Grid
-from typing import List
 from .position import Position
 from .snake import Snake
 from random import randint
@@ -14,8 +13,10 @@ class Game():
         self.tick = tick
         self.snake = snake
         self._direction = initialDirection
+        self._last_used_direction = initialDirection
         self._is_game_over = False
         self.food_position = self.get_random_free_position()
+        self.crash_position = None
 
     @property
     def direction(self) -> Direction:
@@ -23,15 +24,14 @@ class Game():
 
     @direction.setter
     def direction(self, direction: Direction) -> None:
-        # TODO: add counter to check count of turns made in direction
-        if not self._direction.isOpposite(direction):
+        if not self._last_used_direction.isOpposite(direction):
             self._direction = direction
 
     def is_game_over(self) -> bool:
         return self._is_game_over
 
     def render_frame(self) -> None:
-        self.renderer.render_level(self.snake, self.grid, self.food_position)
+        self.renderer.render_level(self.snake, self.grid, self.food_position, self.crash_position)
 
     def get_random_free_position(self) -> Position:
         position_is_free = False
@@ -49,13 +49,13 @@ class Game():
 
     def make_game_turn(self) -> None:
         self.snake.move_in_direction(self.direction)
+        self._last_used_direction = self.direction
         cell_value = self.grid.getCell(self.snake.head_position)
 
         if self.snake.head_position == self.food_position:
             self.snake.prepend_head_in_direction(self._direction)
             self.grid.setCell(self.snake.head_position, CellType.NONE.value)
             self.food_position = self.get_random_free_position()
-        elif cell_value == CellType.WALL.value:
+        elif cell_value == CellType.WALL.value or self.snake.has_self_interceptions():
             self._is_game_over = True
-
-        # TODO: add self-intercection check
+            self.crash_position = self.snake.head_position
