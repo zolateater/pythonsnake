@@ -12,10 +12,10 @@ https://docs.python.org/3/library/curses.html#window-objects
 class Renderer():
     SYMBOL_WALL = "█"
     SYMBOL_BORDER = "░"
-    SYMBOL_SNAKE_BODY = 'O'
-    SYMBOL_SNAKE_HEAD = 'O'
-    SYMBOL_CRASH_SITE = '☒'
-    SYMBOL_FOOD = '◉'
+    SYMBOL_SNAKE_BODY = '#'
+    SYMBOL_SNAKE_HEAD = '#'
+    SYMBOL_CRASH_SITE = '█'
+    SYMBOL_FOOD = 'O'
 
     COLOR_PAIR_HEAD_SNAKE = 1
     COLOR_PAIR_FOOD = 2
@@ -30,7 +30,7 @@ class Renderer():
         curses.init_pair(self.COLOR_PAIR_FOOD, curses.COLOR_GREEN, -1)
         curses.init_pair(self.COLOR_PAIR_CRASH_SITE, curses.COLOR_RED, -1)
 
-    def render_level(self, snake: Snake, grid: Grid, food_position: Position):
+    def render_level(self, snake: Snake, grid: Grid, food_position: Position, crash_position: Optional[Position]):
         self.window.erase()
         subwindow = self._get_grid_subwindow(grid)
 
@@ -38,8 +38,11 @@ class Renderer():
         self._draw_grid(subwindow, grid)
         self._draw_snake(subwindow, snake)
         self._draw_food(subwindow, food_position)
-        self.window.refresh()
+        if crash_position:
+            self._draw_crash_position(subwindow, crash_position)
         # self._draw_ui(subwindow, 123)
+
+        self.window.refresh()
 
     def _get_grid_subwindow(self, grid: Grid) -> Any:
         height, width = self.window.getmaxyx()
@@ -91,12 +94,19 @@ class Renderer():
     def _draw_grid(self, subwindow, grid: Grid):
         for i in range(0, grid.height):
             grid_line = "".join(grid.cells[i]).replace(CellType.WALL.value, self.SYMBOL_WALL)
-            self._draw_line_at_with_trimming(subwindow, grid_line, Position(1, i + 1)) # since we have border
+            self._draw_line_at_with_trimming(subwindow, grid_line, self._to_level_coordinates(Position(0, i)))
 
     def _draw_snake(self, subwindow, snake: Snake):
-        self._draw_line_at_with_trimming(subwindow, self.SYMBOL_SNAKE_HEAD, Position(snake.head_position.x + 1, snake.head_position.y + 1), self.COLOR_PAIR_HEAD_SNAKE)
+        self._draw_line_at_with_trimming(subwindow, self.SYMBOL_SNAKE_HEAD, self._to_level_coordinates(snake.head_position), self.COLOR_PAIR_HEAD_SNAKE)
         for position in snake.positions[1:]:
-            self._draw_line_at_with_trimming(subwindow, self.SYMBOL_SNAKE_BODY, Position(position.x + 1, position.y + 1))
+            self._draw_line_at_with_trimming(subwindow, self.SYMBOL_SNAKE_BODY, self._to_level_coordinates(position))
 
     def _draw_food(self, subwindow, food_position: Position):
-        self._draw_line_at_with_trimming(subwindow, self.SYMBOL_SNAKE_BODY, Position(food_position.x + 1, food_position.y + 1), self.COLOR_PAIR_FOOD)
+        self._draw_line_at_with_trimming(subwindow, self.SYMBOL_FOOD, self._to_level_coordinates(food_position), self.COLOR_PAIR_FOOD)
+
+    def _draw_crash_position(self, subwindow, crash_position: Position):
+        self._draw_line_at_with_trimming(subwindow, self.SYMBOL_CRASH_SITE, self._to_level_coordinates(crash_position), self.COLOR_PAIR_CRASH_SITE)
+
+    def _to_level_coordinates(self, position: Position) -> Position:
+        return Position(position.x + 1, position.y + 1)
+
