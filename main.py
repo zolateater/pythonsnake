@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import curses
 from logging import FileHandler, Formatter, getLogger, DEBUG
-from time import time
+from time import time, sleep
 # TODO: fix __init__ of game package
 from src.game.grid import Grid
 from src.game.game import Game, Direction, Position, Snake
@@ -69,16 +69,15 @@ grid = Grid([
     ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
 ])
 
-snake = Snake([Position(0, 0), Position(0, 1), Position(0, 2), Position(0, 3)], grid.width, grid.height)
-game = Game(renderer, grid, 0.2, snake, Direction.DOWN)
+snake = Snake([Position(1, 3), Position(1, 2), Position(1, 1)], grid.width, grid.height)
+game = Game(renderer, grid, 0.4, snake, Direction.DOWN)
 
 
 try:
     lastTickTime = time()
-    while True:
-        # TODO: add checks for rendering
+    while not game.is_game_over():
         ch = window.getch()
-
+        game.render_frame()
         if ch == ord('q'):
             break
         if ch == curses.KEY_UP:
@@ -90,16 +89,16 @@ try:
         if ch == curses.KEY_DOWN:
             game.direction = Direction.DOWN
 
-
         currentTickTime = time()
         if currentTickTime - lastTickTime >= game.tick:
             lastTickTime = currentTickTime
             game.make_game_turn()
-            game.render_frame()
 except Exception as e:
     logger.fatal(str(e))
     raise e
 finally:
+    game.render_frame()
+    sleep(1)
     # Undo our changes to the terminal
     curses.nocbreak()
     window.keypad(False)

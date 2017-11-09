@@ -28,6 +28,14 @@ class Snake():
             .with_y(new_head_position.y % self.worldHeight)
         self.positions.insert(0, new_head_position)
 
+    def has_self_interceptions(self) -> bool:
+        if len(set(self.positions)) != len(self.positions):
+            for pos in self.positions:
+                import sys
+                sys.stderr.write(str(hash(pos)) + "; pos = " + repr(pos) + '\n')
+
+        return len(set(self.positions)) != len(self.positions)
+
     def _fail_if_positions_has_gaps(self, positions: List[Position]):
         previousPosition = positions[0]
         for position in positions[1:]:
