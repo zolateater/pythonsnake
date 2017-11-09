@@ -14,8 +14,10 @@ class Game():
         self.tick = tick
         self.snake = snake
         self._direction = initialDirection
+        self._lastUsedDirection = initialDirection
         self._is_game_over = False
         self.food_position = self.get_random_free_position()
+        self.crash_position = None
 
     @property
     def direction(self) -> Direction:
@@ -24,7 +26,7 @@ class Game():
     @direction.setter
     def direction(self, direction: Direction) -> None:
         # TODO: add counter to check count of turns made in direction
-        if not self._direction.isOpposite(direction):
+        if not self._lastUsedDirection.isOpposite(direction):
             self._direction = direction
 
     def is_game_over(self) -> bool:
@@ -49,6 +51,7 @@ class Game():
 
     def make_game_turn(self) -> None:
         self.snake.move_in_direction(self.direction)
+        self._lastUsedDirection = self.direction
         cell_value = self.grid.getCell(self.snake.head_position)
 
         if self.snake.head_position == self.food_position:
