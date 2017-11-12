@@ -4,11 +4,14 @@ from logging import FileHandler, Formatter, getLogger, DEBUG
 from time import time, sleep
 # TODO: fix __init__ of game package
 from src.game.grid import Grid
-from src.game.game import Game, Direction, Position, Snake
+from src.game.levelrunner import LevelRunner, Level, Direction, Position, Snake, Difficulty
+from src.game.difficulty import get_all_difficulties
 
 
 # Logging facilities
 # TODO: move to some application class
+from src.game.menu import Menu
+from src.game.menu_item import MenuItem
 from src.game.renderer import Renderer
 
 logger = getLogger('default')
@@ -68,36 +71,43 @@ grid = Grid([
     ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
     ['#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#',],
 ])
-
 snake = Snake([Position(1, 3), Position(1, 2), Position(1, 1)], grid.width, grid.height)
-game = Game(renderer, grid, 0.4, snake, Direction.DOWN)
+level = Level(snake, grid, Direction.DOWN, 10)
+level_runner = LevelRunner(renderer, level, get_all_difficulties()[3])
 
 
 try:
+
+    menu = Menu([MenuItem(1, "Continue"), MenuItem(2, "New Game"), MenuItem(3, "Quit Game")], 1)
+    while True:
+        renderer.render_menu(menu)
+        sleep(1)
+
+    # TODO: Move to game_runner
     lastTickTime = time()
-    while not game.is_game_over():
+    while not level_runner.is_game_over():
         ch = window.getch()
-        game.render_frame()
+        level_runner.render_frame()
         if ch == ord('q'):
             break
         if ch == curses.KEY_UP:
-            game.direction = Direction.UP
+            level_runner.direction = Direction.UP
         if ch == curses.KEY_LEFT:
-            game.direction = Direction.LEFT
+            level_runner.direction = Direction.LEFT
         if ch == curses.KEY_RIGHT:
-            game.direction = Direction.RIGHT
+            level_runner.direction = Direction.RIGHT
         if ch == curses.KEY_DOWN:
-            game.direction = Direction.DOWN
+            level_runner.direction = Direction.DOWN
 
         currentTickTime = time()
-        if currentTickTime - lastTickTime >= game.tick:
+        if currentTickTime - lastTickTime >= level_runner.difficulty.tick:
             lastTickTime = currentTickTime
-            game.make_game_turn()
+            level_runner.make_game_turn()
 except Exception as e:
     logger.fatal(str(e))
     raise e
 finally:
-    game.render_frame()
+    level_runner.render_frame()
     sleep(1)
     # Undo our changes to the terminal
     curses.nocbreak()
