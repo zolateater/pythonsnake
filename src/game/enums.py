@@ -33,3 +33,18 @@ class Direction(Enum):
 class LevelStatus(Enum):
     GAME_OVER = 0
     VICTORY = 1
+
+
+@unique
+class ControllerEvent(Enum):
+    MENU_EXIT = 'MENU_EXIT'
+    MENU_CHOOSE = 'MENU_CHOOSE'
+    MENU_UP = 'MENU_UP'
+    MENU_DOWN = 'MENU_DOWN'
+
+    GAME_QUIT = 'GAME_QUIT'
+    GAME_MENU = 'GAME_MENU'
+    GAME_UP = 'GAME_UP'
+    GAME_DOWN = 'GAME_DOWN'
+    GAME_LEFT = 'GAME_LEFT'
+    GAME_RIGHT = 'GAME_RIGHT'
