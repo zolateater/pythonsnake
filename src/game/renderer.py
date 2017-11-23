@@ -24,6 +24,12 @@ class Renderer():
     COLOR_PAIR_CRASH_SITE = 3
     COLOR_PAIR_MENU_ITEM = 4
     COLOR_PAIR_MENU_ITEM_ACTIVE = 5
+    COLOR_PAIR_DEFEAT = 6
+    COLOR_PAIR_VICTORY = 7
+
+    PHRASE_DEFEAT = 'YOU DIED'
+    PHRASE_VICTORY = 'VICTORY ACHIEVED'
+    PHRASE_VICTORY_FULL = 'YOU COMPLETED THE GAME'
 
     OFFSET_FOR_BORDER = 2
 
@@ -37,15 +43,18 @@ class Renderer():
         curses.init_pair(self.COLOR_PAIR_CRASH_SITE, curses.COLOR_RED, -1)
         curses.init_pair(self.COLOR_PAIR_MENU_ITEM, curses.COLOR_WHITE, curses.COLOR_BLACK)
         curses.init_pair(self.COLOR_PAIR_MENU_ITEM_ACTIVE, curses.COLOR_BLACK, curses.COLOR_WHITE)
+        curses.init_pair(self.COLOR_PAIR_DEFEAT, curses.COLOR_RED, curses.COLOR_BLACK)
+        curses.init_pair(self.COLOR_PAIR_VICTORY, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 
-    def render_level(self, snake: Snake, grid: Grid, food_position: Position, crash_position: Optional[Position]):
+    def render_level(self, snake: Snake, grid: Grid, food_position: Optional[Position], crash_position: Optional[Position]):
         self.window.erase()
         subwindow = self._get_grid_subwindow(grid)
 
         self._draw_borders(subwindow, grid)
         self._draw_grid(subwindow, grid)
         self._draw_snake(subwindow, snake)
-        self._draw_food(subwindow, food_position)
+        if food_position:
+            self._draw_food(subwindow, food_position)
         if crash_position:
             self._draw_crash_position(subwindow, crash_position)
         # self._draw_ui(subwindow, 123)
@@ -140,4 +149,23 @@ class Renderer():
 
     def _to_level_coordinates(self, position: Position) -> Position:
         return Position(position.x + 1, position.y + 1)
+
+    def _render_phase_with_borders(self, phrase: str, color_pair: int):
+        phrase_width = len(phrase) + self.OFFSET_FOR_BORDER
+        phrase_height = 1 + self.OFFSET_FOR_BORDER
+
+        window = self._get_subwindow_in_center(phrase_width, phrase_height)
+        self._draw_line_at_with_trimming(window, " " * phrase_width, Position(0, 0), color_pair)
+        self._draw_line_at_with_trimming(window, " " + phrase + " ", Position(0, 1), color_pair)
+        self._draw_line_at_with_trimming(window, " " * phrase_width, Position(0, 2), color_pair)
+        self.window.refresh()
+
+    def render_defeat(self):
+        self._render_phase_with_borders(self.PHRASE_DEFEAT, self.COLOR_PAIR_DEFEAT)
+
+    def render_victory(self):
+        self._render_phase_with_borders(self.PHRASE_VICTORY, self.COLOR_PAIR_VICTORY)
+
+    def render_total_victory(self):
+        self._render_phase_with_borders(self.PHRASE_VICTORY_FULL, self.COLOR_PAIR_VICTORY)
 

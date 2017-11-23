@@ -17,8 +17,8 @@ class Difficulty():
 
 def get_all_difficulties() -> List[Difficulty]:
     return [
-        Difficulty(0.6, 1, "Easy", Difficulty.DIFFICULTY_EASY_ID),
-        Difficulty(0.5, 2, "Medium", Difficulty.DIFFICULTY_MEDIUM_ID),
-        Difficulty(0.2, 4, "Hard", Difficulty.DIFFICULTY_HARD_ID),
-        Difficulty(0.1, 8, "Extra Hard", Difficulty.DIFFICULTY_EXTRA_HARD_ID),
+        Difficulty(0.5, 1, "Easy", Difficulty.DIFFICULTY_EASY_ID),
+        Difficulty(0.3, 2, "Medium", Difficulty.DIFFICULTY_MEDIUM_ID),
+        Difficulty(0.1, 4, "Hard", Difficulty.DIFFICULTY_HARD_ID),
+        Difficulty(0.07, 8, "Extra Hard", Difficulty.DIFFICULTY_EXTRA_HARD_ID),
     ]

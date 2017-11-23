@@ -28,11 +28,6 @@ class Snake():
         self.positions.pop()
 
     def has_self_interceptions(self) -> bool:
-        if len(set(self.positions)) != len(self.positions):
-            for pos in self.positions:
-                import sys
-                sys.stderr.write(str(hash(pos)) + "; pos = " + repr(pos) + '\n')
-
         return len(set(self.positions)) != len(self.positions)
 
     def _fail_if_positions_has_gaps(self, positions: List[Position]):
