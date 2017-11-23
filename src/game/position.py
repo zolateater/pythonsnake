@@ -1,4 +1,4 @@
-from src.game.enums import Direction
+from .enums import Direction
 
 class Position():
 

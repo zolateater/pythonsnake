@@ -6,7 +6,7 @@ class CellType(Enum):
     NONE = ' '
 
     @classmethod
-    def cellTypeExists(cls, cell: str) -> bool:
+    def exists(cls, cell: str) -> bool:
         enum_items = list(cls.__members__.values())
         enum_values = map(lambda e : e.value, enum_items)
         return cell in enum_values
@@ -18,7 +18,7 @@ class Direction(Enum):
     RIGHT = 2
     DOWN = 3
 
-    def isOpposite(self, direction: 'Direction') -> bool:
+    def is_opposite(self, direction: 'Direction') -> bool:
         oppositePairs = [
             [self.UP.value, self.DOWN.value],
             [self.LEFT.value, self.RIGHT.value],
@@ -29,3 +29,22 @@ class Direction(Enum):
 
         return currentPair in oppositePairs
 
+@unique
+class LevelStatus(Enum):
+    GAME_OVER = 0
+    VICTORY = 1
+
+
+@unique
+class ControllerEvent(Enum):
+    MENU_EXIT = 'MENU_EXIT'
+    MENU_CHOOSE = 'MENU_CHOOSE'
+    MENU_UP = 'MENU_UP'
+    MENU_DOWN = 'MENU_DOWN'
+
+    GAME_QUIT = 'GAME_QUIT'
+    GAME_MENU = 'GAME_MENU'
+    GAME_UP = 'GAME_UP'
+    GAME_DOWN = 'GAME_DOWN'
+    GAME_LEFT = 'GAME_LEFT'
+    GAME_RIGHT = 'GAME_RIGHT'

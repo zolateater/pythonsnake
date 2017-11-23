@@ -15,25 +15,19 @@ class Snake():
     def head_position(self) -> Position:
         return self.positions[0]
 
-    def move_in_direction(self, direction: Direction) -> None:
-        self.prepend_head_in_direction(direction)
-        self.positions.pop()
-
-    def prepend_head_in_direction(self, direction: Direction) -> None:
+    def prepend_head_at_direction(self, direction: Direction) -> None:
         new_head_position = self.head_position.increment_in_direction(direction)
 
         # We need to give our snake ability to move through levels without walls
-        new_head_position = new_head_position\
-            .with_x(new_head_position.x % self.worldWidth)\
+        new_head_position = new_head_position \
+            .with_x(new_head_position.x % self.worldWidth) \
             .with_y(new_head_position.y % self.worldHeight)
         self.positions.insert(0, new_head_position)
 
-    def has_self_interceptions(self) -> bool:
-        if len(set(self.positions)) != len(self.positions):
-            for pos in self.positions:
-                import sys
-                sys.stderr.write(str(hash(pos)) + "; pos = " + repr(pos) + '\n')
+    def pop_tail(self) -> None:
+        self.positions.pop()
 
+    def has_self_interceptions(self) -> bool:
         return len(set(self.positions)) != len(self.positions)
 
     def _fail_if_positions_has_gaps(self, positions: List[Position]):

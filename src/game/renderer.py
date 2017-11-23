@@ -1,9 +1,11 @@
 from typing import Any, Optional
-from src.game.enums import CellType
-from src.game.grid import Grid
-from src.game.position import Position
-from src.game.snake import Snake
+from .enums import CellType
+from .grid import Grid
+from .menu import Menu
+from .position import Position
+from .snake import Snake
 import curses
+
 
 """
 For window methods please look at the
@@ -20,6 +22,16 @@ class Renderer():
     COLOR_PAIR_HEAD_SNAKE = 1
     COLOR_PAIR_FOOD = 2
     COLOR_PAIR_CRASH_SITE = 3
+    COLOR_PAIR_MENU_ITEM = 4
+    COLOR_PAIR_MENU_ITEM_ACTIVE = 5
+    COLOR_PAIR_DEFEAT = 6
+    COLOR_PAIR_VICTORY = 7
+
+    PHRASE_DEFEAT = 'YOU DIED'
+    PHRASE_VICTORY = 'VICTORY ACHIEVED'
+    PHRASE_VICTORY_FULL = 'YOU COMPLETED THE GAME'
+
+    OFFSET_FOR_BORDER = 2
 
     def __init__(self, window: Any):
         self.window = window
@@ -29,37 +41,65 @@ class Renderer():
         curses.init_pair(self.COLOR_PAIR_HEAD_SNAKE, curses.COLOR_BLUE, -1)
         curses.init_pair(self.COLOR_PAIR_FOOD, curses.COLOR_GREEN, -1)
         curses.init_pair(self.COLOR_PAIR_CRASH_SITE, curses.COLOR_RED, -1)
+        curses.init_pair(self.COLOR_PAIR_MENU_ITEM, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        curses.init_pair(self.COLOR_PAIR_MENU_ITEM_ACTIVE, curses.COLOR_BLACK, curses.COLOR_WHITE)
+        curses.init_pair(self.COLOR_PAIR_DEFEAT, curses.COLOR_RED, curses.COLOR_BLACK)
+        curses.init_pair(self.COLOR_PAIR_VICTORY, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 
-    def render_level(self, snake: Snake, grid: Grid, food_position: Position, crash_position: Optional[Position]):
+    def render_level(self, snake: Snake, grid: Grid, food_position: Optional[Position], crash_position: Optional[Position]):
         self.window.erase()
         subwindow = self._get_grid_subwindow(grid)
 
         self._draw_borders(subwindow, grid)
         self._draw_grid(subwindow, grid)
         self._draw_snake(subwindow, snake)
-        self._draw_food(subwindow, food_position)
+        if food_position:
+            self._draw_food(subwindow, food_position)
         if crash_position:
             self._draw_crash_position(subwindow, crash_position)
         # self._draw_ui(subwindow, 123)
 
         self.window.refresh()
 
-    def _get_grid_subwindow(self, grid: Grid) -> Any:
-        height, width = self.window.getmaxyx()
+    def render_menu(self, menu: Menu) -> None:
+        self.window.erase()
 
-        grid_width_bordered = grid.width + 2
-        grid_height_bordered = grid.height + 2
+        menu_length = len(menu.items)
+        menu_window_height = menu_length + (menu_length - 1)
+        max_item_length = max(map(lambda x: len(x.text), menu.items))
+        menu_window_width = max_item_length + self.OFFSET_FOR_BORDER + 5
+        menu_subwindow = self._get_subwindow_in_center(menu_window_width, menu_window_height)
+
+        offset = 0
+        for i, item in enumerate(menu.items):
+            length_diff = menu_window_width - len(item.text)
+            rjust_length = menu_window_width - (length_diff // 2)
+            space_padded_text = item.text.rjust(rjust_length, ' ').ljust(menu_window_width, ' ')
+            color = self.COLOR_PAIR_MENU_ITEM_ACTIVE if i == menu._active_index else self.COLOR_PAIR_MENU_ITEM
+            self._draw_line_at_with_trimming(menu_subwindow, space_padded_text, Position(0, offset), color)
+            offset += 2
+
+        self.window.refresh()
+
+    def _get_grid_subwindow(self, grid: Grid) -> Any:
+        grid_width_bordered = grid.width + self.OFFSET_FOR_BORDER
+        grid_height_bordered = grid.height + self.OFFSET_FOR_BORDER
+
+        return self._get_subwindow_in_center(grid_width_bordered, grid_height_bordered)
+
+    def _get_subwindow_in_center(self, width: int, height: int) -> Any:
+        window_height, window_width = self.window.getmaxyx()
 
         offset_x, offset_y = 0, 0
-        width_sub_window, height_sub_window = width, height
+        width_sub_window, height_sub_window = window_width, window_height
 
-        if width > grid_width_bordered:
-            offset_x = (width - grid_width_bordered) // 2
-            width_sub_window = grid_width_bordered
+        if window_width > width:
+            offset_x = (window_width - width) // 2
+            width_sub_window = width
 
-        if height > grid_height_bordered:
-            offset_y = (height - grid_height_bordered) // 2
-            height_sub_window = grid_height_bordered
+        if window_height > height:
+            offset_y = (window_height - height) // 2
+            height_sub_window = height
 
         return self.window.subwin(height_sub_window, width_sub_window, offset_y, offset_x)
 
@@ -85,10 +125,10 @@ class Renderer():
             window.addstr(*arguments)
 
     def _draw_borders(self, subwindow, grid: Grid):
-        border_line_length = grid.width + 2
+        border_line_length = grid.width + self.OFFSET_FOR_BORDER
         border_line = self.SYMBOL_BORDER * border_line_length
 
-        for i in range(0, grid.height + 2):
+        for i in range(0, grid.height + self.OFFSET_FOR_BORDER):
             self._draw_line_at_with_trimming(subwindow, border_line, Position(0, i))
 
     def _draw_grid(self, subwindow, grid: Grid):
@@ -109,4 +149,23 @@ class Renderer():
 
     def _to_level_coordinates(self, position: Position) -> Position:
         return Position(position.x + 1, position.y + 1)
+
+    def _render_phase_with_borders(self, phrase: str, color_pair: int):
+        phrase_width = len(phrase) + self.OFFSET_FOR_BORDER
+        phrase_height = 1 + self.OFFSET_FOR_BORDER
+
+        window = self._get_subwindow_in_center(phrase_width, phrase_height)
+        self._draw_line_at_with_trimming(window, " " * phrase_width, Position(0, 0), color_pair)
+        self._draw_line_at_with_trimming(window, " " + phrase + " ", Position(0, 1), color_pair)
+        self._draw_line_at_with_trimming(window, " " * phrase_width, Position(0, 2), color_pair)
+        self.window.refresh()
+
+    def render_defeat(self):
+        self._render_phase_with_borders(self.PHRASE_DEFEAT, self.COLOR_PAIR_DEFEAT)
+
+    def render_victory(self):
+        self._render_phase_with_borders(self.PHRASE_VICTORY, self.COLOR_PAIR_VICTORY)
+
+    def render_total_victory(self):
+        self._render_phase_with_borders(self.PHRASE_VICTORY_FULL, self.COLOR_PAIR_VICTORY)
 
