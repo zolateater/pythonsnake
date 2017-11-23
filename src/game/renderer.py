@@ -66,7 +66,7 @@ class Renderer():
             length_diff = menu_window_width - len(item.text)
             rjust_length = menu_window_width - (length_diff // 2)
             space_padded_text = item.text.rjust(rjust_length, ' ').ljust(menu_window_width, ' ')
-            color = self.COLOR_PAIR_MENU_ITEM_ACTIVE if i == menu.active_index else self.COLOR_PAIR_MENU_ITEM
+            color = self.COLOR_PAIR_MENU_ITEM_ACTIVE if i == menu._active_index else self.COLOR_PAIR_MENU_ITEM
             self._draw_line_at_with_trimming(menu_subwindow, space_padded_text, Position(0, offset), color)
             offset += 2
 

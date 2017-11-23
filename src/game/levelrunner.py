@@ -29,13 +29,15 @@ class LevelRunner():
     def direction(self) -> Direction:
         return self._direction
 
-    @direction.setter
-    def direction(self, direction: Direction) -> None:
+    def set_new_direction(self, direction: Direction) -> None:
         if not self._last_used_direction.is_opposite(direction):
             self._direction = direction
 
     def is_game_over(self) -> bool:
         return self._is_game_over
+
+    def is_level_completed(self) -> bool:
+        return self.food_eaten == self.food_count_to_complete
 
     def get_total_score(self) -> int:
         return self.food_eaten * self.difficulty.score_multiplier + self.initial_score
@@ -58,8 +60,8 @@ class LevelRunner():
         return Position(randint(0, self.grid.width - 1), randint(0, self.grid.height - 1))
 
     def make_game_turn(self) -> None:
-        self.snake.prepend_head_at_direction(self.direction)
-        self._last_used_direction = self.direction
+        self.snake.prepend_head_at_direction(self._direction)
+        self._last_used_direction = self._direction
         cell_value = self.grid.get_cell_at(self.snake.head_position)
 
         if self.snake.head_position == self.food_position:
