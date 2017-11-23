@@ -17,8 +17,12 @@ class GameController(AbstractController):
         if self.key_code_equals_to_char(key_code, 'm'):
             return ControllerEvent.GAME_MENU
         if key_code == curses.KEY_UP:
-            return ControllerEvent.MENU_DOWN
-        if key_code == curses.KEY_ENTER:
-            return ControllerEvent.MENU_CHOOSE
+            return ControllerEvent.GAME_UP
+        if key_code == curses.KEY_DOWN:
+            return ControllerEvent.GAME_DOWN
+        if key_code == curses.KEY_LEFT:
+            return ControllerEvent.GAME_LEFT
+        if key_code == curses.KEY_RIGHT:
+            return ControllerEvent.GAME_RIGHT
 
         return None

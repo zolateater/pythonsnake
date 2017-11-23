@@ -71,9 +71,9 @@ def get_level_list() -> List[Level]:
     ]
 
     return [
-        Level(Snake([Position(1, 3), Position(1, 2), Position(1, 1)], grids[0].width, grids[0].height), grids[0], Direction.DOWN, 15),
-        Level(Snake([Position(1, 3), Position(1, 2), Position(1, 1)], grids[1].width, grids[1].height), grids[1], Direction.DOWN, 15),
-        Level(Snake([Position(1, 3), Position(1, 2), Position(1, 1)], grids[2].width, grids[2].height), grids[2], Direction.DOWN, 12),
-        Level(Snake([Position(1, 3), Position(1, 2), Position(1, 1)], grids[3].width, grids[3].height), grids[3], Direction.DOWN, 10),
-        Level(Snake([Position(1, 3), Position(1, 2), Position(1, 1)], grids[4].width, grids[4].height), grids[4], Direction.DOWN, 10),
+        Level(Snake([Position(1, 3), Position(1, 2), Position(1, 1)], grids[0].width, grids[0].height), grids[0], Direction.DOWN, 5),
+        Level(Snake([Position(1, 3), Position(1, 2), Position(1, 1)], grids[1].width, grids[1].height), grids[1], Direction.DOWN, 5),
+        Level(Snake([Position(1, 3), Position(1, 2), Position(1, 1)], grids[2].width, grids[2].height), grids[2], Direction.DOWN, 5),
+        Level(Snake([Position(1, 3), Position(1, 2), Position(1, 1)], grids[3].width, grids[3].height), grids[3], Direction.DOWN, 5),
+        Level(Snake([Position(1, 3), Position(1, 2), Position(1, 1)], grids[4].width, grids[4].height), grids[4], Direction.DOWN, 3),
     ]

@@ -1,3 +1,4 @@
+from src.config.app import App
 from .difficulty import Difficulty
 from .level import Level
 from .renderer import Renderer
@@ -64,9 +65,14 @@ class LevelRunner():
         self._last_used_direction = self._direction
         cell_value = self.grid.get_cell_at(self.snake.head_position)
 
+        App.Logger.debug("Food eaten = {}, to complete = {}".format(self.food_eaten, self.food_count_to_complete))
+
         if self.snake.head_position == self.food_position:
-            self.food_position = self._get_random_free_position()
             self.food_eaten += 1
+            if not self.is_level_completed():
+                self.food_position = self._get_random_free_position()
+            else:
+                self.food_position = None
         elif cell_value == CellType.WALL.value or self.snake.has_self_interceptions():
             self._is_game_over = True
             self.crash_position = self.snake.head_position
