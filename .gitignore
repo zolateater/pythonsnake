@@ -1,4 +1,5 @@
 .mypy_cache/
+.cache/
 __pycache__
 .idea/
 logs/*.log

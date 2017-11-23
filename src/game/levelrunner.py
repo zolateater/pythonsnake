@@ -12,6 +12,7 @@ from random import randint
 
 class LevelRunner():
     def __init__(self, renderer: Renderer, level: Level, difficulty: Difficulty, score: int = 0):
+        # TODO: Remove rendering from level runner
         self.renderer = renderer
         self.grid = level.grid
         self.difficulty = difficulty
