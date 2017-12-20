@@ -1,12 +1,12 @@
 from typing import List
 from ..config.app import App
 from .menu_item import MenuItem
-from .enums import ControllerEvent, Direction
+from .enums import ControllerEvent, Direction, LevelOutcome
 from .menu import Menu
 from .abstract_controller import AbstractController
 from time import time, sleep
 from .level import Level
-from .levelrunner import Level, LevelRunner
+from .level_runner import Level, LevelRunner
 from .renderer import Renderer
 from sys import exit
 
@@ -28,10 +28,6 @@ class GameRunner():
         self.should_quit = False
 
     def start(self) -> None:
-        # render menu
-        # get active action
-        # if action is move - rerender
-        # if action is select - handle (selected menu item)
         self._renderer.render_menu(self.active_menu)
         while not self.should_quit:
             action = self.gui_controller.read_action()
@@ -69,11 +65,11 @@ class GameRunner():
     def run_new_game(self):
         game_score = 0
         for level in App.LevelList:
-            level_runner = LevelRunner(self._renderer, level, App.CurrentDifficulty, game_score)
+            level_runner = LevelRunner(level, App.CurrentDifficulty, game_score)
             last_tick_time = time()
-            while not level_runner.is_game_over() and not level_runner.is_level_completed():
+            while level_runner.level_outcome is None:
                 controller_event = self.game_controller.read_action()
-                level_runner.render_frame()
+                self._renderer.render_level_state(level_runner.get_level_state())
 
                 # Controller events
                 if controller_event == ControllerEvent.GAME_QUIT:
@@ -83,28 +79,28 @@ class GameRunner():
                     # TODO: add save game
                     return
                 if controller_event == ControllerEvent.GAME_DOWN:
-                    level_runner.set_new_direction(Direction.DOWN)
+                    level_runner.handle_direction_change(Direction.DOWN)
                 if controller_event == ControllerEvent.GAME_UP:
-                    level_runner.set_new_direction(Direction.UP)
+                    level_runner.handle_direction_change(Direction.UP)
                 if controller_event == ControllerEvent.GAME_LEFT:
-                    level_runner.set_new_direction(Direction.LEFT)
+                    level_runner.handle_direction_change(Direction.LEFT)
                 if controller_event == ControllerEvent.GAME_RIGHT:
-                    level_runner.set_new_direction(Direction.RIGHT)
+                    level_runner.handle_direction_change(Direction.RIGHT)
 
                 current_tick_time = time()
                 if current_tick_time - last_tick_time >= level_runner.difficulty.tick:
                     last_tick_time = current_tick_time
                     level_runner.make_game_turn()
 
-            # Game over or level completed
-            if level_runner.is_game_over():
-                level_runner.render_frame()
+            level_outcome = level_runner.level_outcome
+            if level_outcome == LevelOutcome.GAME_OVER:
+                self._renderer.render_level_state(level_runner.get_level_state())
                 self._renderer.render_defeat()
                 sleep(1)
                 return
 
-            if level_runner.is_level_completed():
-                level_runner.render_frame()
+            if level_outcome == LevelOutcome.LEVEL_COMPLETED:
+                self._renderer.render_level_state(level_runner.get_level_state())
                 self._renderer.render_victory()
                 sleep(1)
                 game_score = level_runner.get_total_score()

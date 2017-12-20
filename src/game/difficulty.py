@@ -2,7 +2,9 @@ from typing import List
 
 
 class Difficulty():
-
+    """
+    Difficulty
+    """
     DIFFICULTY_EASY_ID = 1
     DIFFICULTY_MEDIUM_ID = 2
     DIFFICULTY_HARD_ID = 3

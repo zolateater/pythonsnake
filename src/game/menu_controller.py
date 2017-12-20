@@ -5,7 +5,7 @@ from .enums import ControllerEvent
 from .abstract_controller import AbstractController
 
 
-class GuiController(AbstractController):
+class MenuController(AbstractController):
     def __init__(self, window: Any):
         self.window = window
 

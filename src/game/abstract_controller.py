@@ -4,6 +4,11 @@ from .enums import ControllerEvent
 
 
 class AbstractController(ABC):
+    """
+    Provides basic interface for reading game input events,
+    such as pressing direction key, pressing menu key, etc.
+    """
+
     @abstractmethod
     def read_action(self) -> Optional[ControllerEvent]:
         raise NotImplementedError('Please, override this method')
